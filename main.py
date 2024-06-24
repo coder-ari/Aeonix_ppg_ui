@@ -2,10 +2,13 @@ import tkinter as tk
 from tkinter import ttk, PhotoImage
 import time
 from graph_window import GraphWindow
-from settings_window import SettingsWindow
+from settings_window2 import SettingsWindow
 import datetime
 import requests  # For making HTTP requests to fetch weather data
-import subprocess
+from PyQt5.QtWidgets import QApplication
+import sys
+
+
 
 class DigitalClock(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -19,6 +22,9 @@ class DigitalClock(tk.Frame):
 
         self.label_date = ttk.Label(self, font=('Helvetica', 20), anchor='w', foreground='white', background='black')
         self.label_date.pack(side='top', anchor='nw', padx=25, pady=10)
+
+        #self.locale = tk.Locale()
+        #self.locale.setlocale(tk.LC_ALL, 'en_US')
 
         self.custom_time = None
         self.custom_date = None
@@ -44,15 +50,16 @@ class DigitalClock(tk.Frame):
         self.label_date.config(text=current_date)
 
     def set_time(self, new_time):
-        self.custom_time = new_time
+        self.custom_time = datetime.datetime.combine(datetime.date.today(), new_time)
 
     def set_date(self, new_date):
+        if self.custom_time:
+            self.custom_time = datetime.datetime.combine(new_date, self.custom_time.time())
         self.custom_date = new_date
 
     def set_location(self, new_location):
         self.location = new_location
         self.update_weather()
-
 
     def update_weather(self):
         api_key = 'f04abef8a0b64277b30125703241906'
@@ -95,8 +102,8 @@ class MainApplication(tk.Tk):
         self.clock = DigitalClock(self, bg='black')
         self.clock.pack(expand=True, anchor='center')
         
-        self.graph_icon = PhotoImage(file='graph.png')  # Replace with your actual black icon image file
-        self.settings_icon = PhotoImage(file='setting.png')  # Replace with your actual black icon image file
+        self.graph_icon = PhotoImage(file='graph.png')  
+        self.settings_icon = PhotoImage(file='setting.png')  
         
         self.style = ttk.Style()
         self.style.configure('IconButton.TButton', background='black', foreground='white', borderwidth=0)
@@ -111,12 +118,17 @@ class MainApplication(tk.Tk):
         GraphWindow(self)
 
     def open_settings_window(self):
-        SettingsWindow(self, self.clock)
+        # SettingsWindow(self)
+        app = QApplication(sys.argv)
+        window = SettingsWindow()
+        window.dateChanged.connect(self.clock.set_date)
+        window.timeChanged.connect(self.clock.set_time)
+        window.locationChanged.connect(self.clock.set_location)
+        window.showFullScreen()  # Open in full-screen mode
+        app.exec_()
 
     def exit_program(self, event=None):
         self.destroy()
-        
-    
 
 if __name__ == "__main__":
     app = MainApplication()
