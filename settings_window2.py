@@ -2,6 +2,17 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPus
 from PyQt5.QtCore import pyqtSignal, Qt, QSize, QLocale
 import datetime
 from PyQt5.QtGui import QIcon
+import json
+
+
+json_data_to_send = {
+    "Sampling Rate": 1000,
+    "Brightness": 30,
+    "Sample Average": 32,
+    "Led Mode": 1,
+    "Pulse Width": 411,
+    "ADC Range": 16384
+}
 
 
 class GeneralSettingsWidget(QWidget):
@@ -114,12 +125,72 @@ class GeneralSettingsWidget(QWidget):
         QMessageBox.information(self, "Date Set", f"New date set: {new_date} ({weekday_name})")
 
 
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QApplication
+from PyQt5.QtCore import pyqtSignal
+
 class PPGSettingsWidget(QWidget):
+    samplingRateChanged = pyqtSignal(int)
+    brightnessChanged = pyqtSignal(int)
+    sampleAverageChanged = pyqtSignal(int)
+    ledModeChanged = pyqtSignal(int)
+    pulseWidthChanged = pyqtSignal(int)
+    adcRangeChanged = pyqtSignal(int)
+
     def __init__(self):
         super().__init__()
         self.setStyleSheet("background-color: black; color: white;")
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("PPG Settings (to be implemented)"))
+
+        # Define labels and input fields
+        labels = ["Sampling Rate:", "Brightness:", "Sample Average:", "Led Mode:", "Pulse Width:", "ADC Range:"]
+        self.input_fields = []
+
+        for label_text in labels:
+            label = QLabel(label_text)
+            label.setStyleSheet("font-size: 16px;")
+            layout.addWidget(label)
+
+            line_edit = QLineEdit()
+            line_edit.setStyleSheet("font-size: 16px; border: 1px solid #808080; border-radius: 5px; padding: 5px;")
+            layout.addWidget(line_edit)
+            self.input_fields.append(line_edit)
+
+        # Add buttons for setting values and closing
+        set_button = QPushButton("Set Values")
+        set_button.setStyleSheet("font-size: 16px;")
+        set_button.clicked.connect(self.set_values)
+        layout.addWidget(set_button)
+
+        close_button = QPushButton("Close")
+        close_button.setStyleSheet("font-size: 16px;")
+        close_button.clicked.connect(self.close_widget)
+        layout.addWidget(close_button)
+
+    def set_values(self):
+        # Retrieve values from input fields and emit signals
+        try:
+            sampling_rate = int(self.input_fields[0].text())
+            brightness = int(self.input_fields[1].text())
+            sample_average = int(self.input_fields[2].text())
+            led_mode = int(self.input_fields[3].text())
+            pulse_width = int(self.input_fields[4].text())
+            adc_range = int(self.input_fields[5].text())
+
+            self.samplingRateChanged.emit(sampling_rate)
+            self.brightnessChanged.emit(brightness)
+            self.sampleAverageChanged.emit(sample_average)
+            self.ledModeChanged.emit(led_mode)
+            self.pulseWidthChanged.emit(pulse_width)
+            self.adcRangeChanged.emit(adc_range)
+
+            QMessageBox.information(self, "Settings Set", "Settings updated successfully.")
+        except ValueError:
+            QMessageBox.warning(self, "Invalid Input", "Please enter valid integer values.")
+
+    def close_widget(self):
+        self.close()
+
+
 
 class SettingsWindow(QMainWindow):
     dateChanged = pyqtSignal(datetime.date)
@@ -171,6 +242,8 @@ class SettingsWindow(QMainWindow):
         close_button.setStyleSheet("font-size: 16px;")
         close_button.clicked.connect(self.close)
         main_layout.addWidget(close_button, alignment=Qt.AlignBottom)
+        
+        
 
         # Connect signals to methods that will emit to the main application
         self.general_settings.dateChanged.connect(self.emit_date_changed)
@@ -201,8 +274,9 @@ class SettingsWindow(QMainWindow):
             self.locationChanged.connect(self.parent().clock.set_location)
 
 if __name__ == "__main__":
-    import sys
+    import sys,os
     from PyQt5.QtWidgets import QApplication
+    os.environ['XDG_RUNTIME_DIR'] = '/tmp/runtime-root'
     app = QApplication(sys.argv)
     app.setLocale(QLocale(QLocale.English))
     window = SettingsWindow()

@@ -1,12 +1,11 @@
 import tkinter as tk
 from tkinter import ttk, PhotoImage
 import time
-from graph_window import GraphWindow
 from settings_window2 import SettingsWindow
 import datetime
 import requests  # For making HTTP requests to fetch weather data
 from PyQt5.QtWidgets import QApplication
-import sys
+import sys, subprocess
 
 
 
@@ -115,7 +114,7 @@ class MainApplication(tk.Tk):
         self.settings_button.place(relx=0.8, rely=0.9, anchor='center')
 
     def open_graph_window(self):
-        GraphWindow(self)
+        subprocess.Popen(['python', 'graph_window.py'])
 
     def open_settings_window(self):
         # SettingsWindow(self)
