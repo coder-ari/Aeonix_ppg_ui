@@ -17,7 +17,7 @@ class NotificationDelegate(DefaultDelegate):
 
     def handleNotification(self, cHandle, data):
         decoded_data = data.decode('utf-8')
-        print(f"Notification from handle {cHandle}: {decoded_data}")
+        print("Notification from handle {}: {}".format(cHandle,decoded_data))
         self.parent.update_plot(float(decoded_data))
 
 class MplCanvas(FigureCanvas):
@@ -95,14 +95,14 @@ class MainWindow(QWidget):
             devices = scan_for_devices()
             
             if not any(dev.addr == DEVICE_ADDRESS for dev in devices):
-                raise Exception(f"Device with address {DEVICE_ADDRESS} not found during scan.")
+                raise Exception("Device with address {} not found during scan.".format(DEVICE_ADDRESS))
             
             self.peripheral, write_char, read_char = connect_to_device(DEVICE_ADDRESS, SERVICE_UUID, WRITE_CHAR_UUID, READ_CHAR_UUID, self)
             write_json_to_characteristic(write_char, json_data_to_send)
             enable_notifications(self.peripheral, read_char)
             self.read_and_plot_from_characteristic()
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print("An error occurred: {}".format(e))
             self.connect_button.setEnabled(True)
             self.connect_button.setText("Connect")
 
@@ -129,7 +129,7 @@ class MainWindow(QWidget):
                 self.peripheral.disconnect()
                 print("Disconnected from device.")
         except Exception as e:
-            print(f"An error occurred while disconnecting: {e}")
+            print("An error occurred while disconnecting: {}".format(e))
         finally:
             self.peripheral = None
             self.connect_button.setText("Connect")
@@ -156,24 +156,24 @@ class MainWindow(QWidget):
         self.disconnect_device()
         self.close()
 def connect_to_device(device_address, service_uuid, write_char_uuid, read_char_uuid, parent):
-    print(f"Connecting to device with address: {device_address}")
+    print("Connecting to device with address: {}".format(device_address))
     peripheral = Peripheral(device_address)
     peripheral.setDelegate(NotificationDelegate(parent))
 
     # Get service
     service = peripheral.getServiceByUUID(UUID(service_uuid))
     if not service:
-        raise Exception(f"Service with UUID {service_uuid} not found.")
+        raise Exception("Service with UUID {} not found.".format(service_uuid))
 
     # Get characteristics
     write_char = service.getCharacteristics(UUID(write_char_uuid))
     if not write_char:
-        raise Exception(f"Write characteristic with UUID {write_char_uuid} not found.")
+        raise Exception("Write characteristic with UUID {} not found.".format(write_char_uuid))
     write_char = write_char[0]
 
     read_char = service.getCharacteristics(UUID(read_char_uuid))
     if not read_char:
-        raise Exception(f"Read characteristic with UUID {read_char_uuid} not found.")
+        raise Exception("Read characteristic with UUID {} not found.".format(read_char_uuid))
     read_char = read_char[0]
 
     return peripheral, write_char, read_char
@@ -181,38 +181,38 @@ def connect_to_device(device_address, service_uuid, write_char_uuid, read_char_u
 def write_json_to_characteristic(characteristic, data):
     json_data = json.dumps(data)
     characteristic.write(json_data.encode('utf-8'), withResponse=True)
-    print(f"Successfully written data to characteristic: {json_data}")
+    print("Successfully written data to characteristic: {}".format(json_data))
 
 def enable_notifications(peripheral, characteristic):
     try:
         cccid = characteristic.getHandle() + 1
         peripheral.writeCharacteristic(cccid, b'\x01\x00', True)
-        print(f"Enabled notifications for characteristic: {characteristic.uuid}")
+        print("Enabled notifications for characteristic: {}".format(characteristic.uuid))
     except BTLEException as e:
-        print(f"Failed to enable notifications: {e}")
+        print("Failed to enable notifications: {}".format(e))
 
 def scan_for_devices():
     scanner = Scanner()
     devices = scanner.scan(10.0)
     for dev in devices:
-        print(f"Device {dev.addr} ({dev.addrType}), RSSI={dev.rssi} dB")
+        print("Device {} ({}), RSSI={} dB".format(dev.addr,dev.addrType,dev.rssi))
         for (adtype, desc, value) in dev.getScanData():
-            print(f"  {desc} = {value}")
+            print("  {} = {}".format(desc,value))
     return devices
     
 
-if __name__ == "__main__":
-    os.environ['XDG_RUNTIME_DIR'] = '/tmp/runtime-root'
-    app = QApplication(sys.argv)
-    window = MainWindow()
+# if __name__ == "__main__":
+#     os.environ['XDG_RUNTIME_DIR'] = '/tmp/runtime-root'
+#     app = QApplication(sys.argv)
+#     window = MainWindow()
     
-    settings_widget = PPGSettingsWidget()
-    settings_widget.samplingRateChanged.connect(window.update_sampling_rate)
-    settings_widget.brightnessChanged.connect(window.update_brightness)
-    settings_widget.sampleAverageChanged.connect(window.update_sample_average)
-    settings_widget.ledModeChanged.connect(window.update_led_mode)
-    settings_widget.pulseWidthChanged.connect(window.update_pulse_width)
-    settings_widget.adcRangeChanged.connect(window.update_adc_range)
+#     settings_widget = PPGSettingsWidget()
+#     settings_widget.samplingRateChanged.connect(window.update_sampling_rate)
+#     settings_widget.brightnessChanged.connect(window.update_brightness)
+#     settings_widget.sampleAverageChanged.connect(window.update_sample_average)
+#     settings_widget.ledModeChanged.connect(window.update_led_mode)
+#     settings_widget.pulseWidthChanged.connect(window.update_pulse_width)
+#     settings_widget.adcRangeChanged.connect(window.update_adc_range)
     
-    window.show()
-    sys.exit(app.exec_())
+#     window.show()
+#     sys.exit(app.exec_())
