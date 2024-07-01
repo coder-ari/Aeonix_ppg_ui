@@ -1,8 +1,7 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QStackedWidget, QLabel, QLineEdit, QComboBox, QMessageBox, QListWidgetItem
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QStackedWidget, QLabel, QLineEdit, QComboBox, QMessageBox, QListWidgetItem, QApplication
 from PyQt5.QtCore import pyqtSignal, Qt, QSize, QLocale
 import datetime
 from PyQt5.QtGui import QIcon
-import json
 
 
 json_data_to_send = {
@@ -26,7 +25,7 @@ class GeneralSettingsWidget(QWidget):
         self.setStyleSheet("background-color: black; color: white;")
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)  # Add padding of 20px from all sides
+        layout.setContentsMargins(50, 50, 50, 50)  # Add padding of 20px from all sides
 
         location_label = QLabel("Location:")
         location_label.setStyleSheet("font-size: 16px;")
@@ -125,9 +124,6 @@ class GeneralSettingsWidget(QWidget):
         QMessageBox.information(self, "Date Set", f"New date set: {new_date} ({weekday_name})")
 
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QApplication
-from PyQt5.QtCore import pyqtSignal
-
 class PPGSettingsWidget(QWidget):
     samplingRateChanged = pyqtSignal(int)
     brightnessChanged = pyqtSignal(int)
@@ -191,7 +187,6 @@ class PPGSettingsWidget(QWidget):
         self.close()
 
 
-
 class SettingsWindow(QMainWindow):
     dateChanged = pyqtSignal(datetime.date)
     timeChanged = pyqtSignal(datetime.time)
@@ -200,7 +195,7 @@ class SettingsWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Settings")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 700, 500)
         self.setStyleSheet("background-color: black; color: white;")
 
         central_widget = QWidget()
@@ -210,19 +205,9 @@ class SettingsWindow(QMainWindow):
         central_widget.setLayout(main_layout)
 
         self.list_widget = QListWidget()
-        self.list_widget.setStyleSheet("font-size: 32px; background-color: #000000; color: white; border: none; padding:20px")
+        self.list_widget.setStyleSheet("font-size: 32px; background-color: #000000; color: white; border: none; padding:50px 50px 50px 50px")
         self.list_widget.setIconSize(QSize(32, 32))  # Set icon size
-        self.list_widget.setMaximumWidth(600)  # Set fixed width for now
-        main_layout.addWidget(self.list_widget)
-
-        self.stacked_widget = QStackedWidget()
-        self.general_settings = GeneralSettingsWidget()
-        self.ppg_settings = PPGSettingsWidget()
-
-        self.stacked_widget.addWidget(self.general_settings)
-        self.stacked_widget.addWidget(self.ppg_settings)
-        main_layout.addWidget(self.stacked_widget)
-
+        
         # Add items to the list widget with icons
         general_item = QListWidgetItem("General Settings")
         general_item.setIcon(QIcon('general_icon.png'))
@@ -238,12 +223,16 @@ class SettingsWindow(QMainWindow):
 
         self.list_widget.currentRowChanged.connect(self.display_settings)
 
-        close_button = QPushButton("Close", self)
-        close_button.setStyleSheet("font-size: 16px;")
-        close_button.clicked.connect(self.close)
-        main_layout.addWidget(close_button, alignment=Qt.AlignBottom)
-        
-        
+        main_layout.addWidget(self.list_widget)
+
+        self.stacked_widget = QStackedWidget()
+        self.general_settings = GeneralSettingsWidget()
+        self.ppg_settings = PPGSettingsWidget()
+
+        self.stacked_widget.addWidget(self.general_settings)
+        self.stacked_widget.addWidget(self.ppg_settings)
+        main_layout.addWidget(self.stacked_widget)
+
 
         # Connect signals to methods that will emit to the main application
         self.general_settings.dateChanged.connect(self.emit_date_changed)
@@ -273,12 +262,10 @@ class SettingsWindow(QMainWindow):
             self.timeChanged.connect(self.parent().clock.set_time)
             self.locationChanged.connect(self.parent().clock.set_location)
 
+
 if __name__ == "__main__":
-    import sys,os
-    from PyQt5.QtWidgets import QApplication
-    os.environ['XDG_RUNTIME_DIR'] = '/tmp/runtime-root'
+    import sys
     app = QApplication(sys.argv)
-    app.setLocale(QLocale(QLocale.English))
     window = SettingsWindow()
     window.show()
     sys.exit(app.exec_())

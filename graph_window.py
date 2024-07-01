@@ -63,12 +63,12 @@ class MainWindow(QWidget):
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.connect_button)
         button_layout.addWidget(self.close_button)
-        button_layout.setContentsMargins(10, 10, 10, 10)  # Adjust margins as needed
+        button_layout.setContentsMargins(32, 32, 32, 32)  # Adjust margins to move components inward by 32 pixels
 
         layout = QVBoxLayout()
         layout.addWidget(self.canvas, stretch=1)  # Ensure the canvas takes most space
         layout.addLayout(button_layout)
-        layout.setContentsMargins(0, 0, 0, 0)  # Ensure no margins around the main layout
+        layout.setContentsMargins(32, 32, 32, 32)  # Ensure no margins around the main layout
         self.setLayout(layout)
 
     def toggle_connection(self):
@@ -155,6 +155,7 @@ class MainWindow(QWidget):
     def close_window(self):
         self.disconnect_device()
         self.close()
+
 def connect_to_device(device_address, service_uuid, write_char_uuid, read_char_uuid, parent):
     print("Connecting to device with address: {}".format(device_address))
     peripheral = Peripheral(device_address)
@@ -200,19 +201,3 @@ def scan_for_devices():
             print("  {} = {}".format(desc,value))
     return devices
     
-
-# if __name__ == "__main__":
-#     os.environ['XDG_RUNTIME_DIR'] = '/tmp/runtime-root'
-#     app = QApplication(sys.argv)
-#     window = MainWindow()
-    
-#     settings_widget = PPGSettingsWidget()
-#     settings_widget.samplingRateChanged.connect(window.update_sampling_rate)
-#     settings_widget.brightnessChanged.connect(window.update_brightness)
-#     settings_widget.sampleAverageChanged.connect(window.update_sample_average)
-#     settings_widget.ledModeChanged.connect(window.update_led_mode)
-#     settings_widget.pulseWidthChanged.connect(window.update_pulse_width)
-#     settings_widget.adcRangeChanged.connect(window.update_adc_range)
-    
-#     window.show()
-#     sys.exit(app.exec_())

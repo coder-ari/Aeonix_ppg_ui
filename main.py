@@ -5,8 +5,8 @@ from settings_window2 import SettingsWindow
 import datetime
 import requests  # For making HTTP requests to fetch weather data
 from PyQt5.QtWidgets import QApplication
-import sys, subprocess
-from graph_window import MainWindow,PPGSettingsWidget
+import sys
+from graph_window2 import MainWindow,PPGSettingsWidget
 
 
 
@@ -109,24 +109,15 @@ class MainApplication(tk.Tk):
         self.style.configure('IconButton.TButton', background='black', foreground='white', borderwidth=0)
         
         self.graph_button = ttk.Button(self, image=self.graph_icon, style='IconButton.TButton', command=self.open_graph_window)
-        self.graph_button.place(relx=0.2, rely=0.9, anchor='center')
+        self.graph_button.place(relx=0.2, rely=0.875, anchor='center')
         
         self.settings_button = ttk.Button(self, image=self.settings_icon, style='IconButton.TButton', command=self.open_settings_window)
-        self.settings_button.place(relx=0.8, rely=0.9, anchor='center')
+        self.settings_button.place(relx=0.8, rely=0.875, anchor='center')
 
     def open_graph_window(self):
         #subprocess.Popen(['python', 'graph_window.py'])
         app = QApplication(sys.argv)
-        window = MainWindow()
-        
-        settings_widget = PPGSettingsWidget()
-        settings_widget.samplingRateChanged.connect(window.update_sampling_rate)
-        settings_widget.brightnessChanged.connect(window.update_brightness)
-        settings_widget.sampleAverageChanged.connect(window.update_sample_average)
-        settings_widget.ledModeChanged.connect(window.update_led_mode)
-        settings_widget.pulseWidthChanged.connect(window.update_pulse_width)
-        settings_widget.adcRangeChanged.connect(window.update_adc_range)
-        
+        window = MainWindow()        
         window.show()
         app.exec_()
 
