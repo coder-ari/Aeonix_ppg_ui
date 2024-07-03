@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QStackedWidget, QLabel, QLineEdit, QComboBox, QMessageBox, QListWidgetItem, QApplication
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QStackedWidget, QLabel, QLineEdit, QComboBox, QMessageBox, QListWidgetItem, QApplication, QSpacerItem, QSizePolicy
+
 from PyQt5.QtCore import pyqtSignal, Qt, QSize, QLocale
 import datetime
 from PyQt5.QtGui import QIcon
@@ -157,11 +158,6 @@ class PPGSettingsWidget(QWidget):
         set_button.clicked.connect(self.set_values)
         layout.addWidget(set_button)
 
-        close_button = QPushButton("Close")
-        close_button.setStyleSheet("font-size: 16px;")
-        close_button.clicked.connect(self.close_widget)
-        layout.addWidget(close_button)
-
     def set_values(self):
         # Retrieve values from input fields and emit signals
         try:
@@ -232,6 +228,11 @@ class SettingsWindow(QMainWindow):
         self.stacked_widget.addWidget(self.general_settings)
         self.stacked_widget.addWidget(self.ppg_settings)
         main_layout.addWidget(self.stacked_widget)
+
+        close_button = QPushButton("Close", self)
+        close_button.setStyleSheet("font-size: 16px;")
+        close_button.clicked.connect(self.close)
+        main_layout.addWidget(close_button)
 
 
         # Connect signals to methods that will emit to the main application

@@ -52,7 +52,7 @@ class MainWindow(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(self.canvas, stretch=1)  # Ensure the canvas takes most space
         layout.addLayout(button_layout)
-        layout.setContentsMargins(32, 32, 32, 32)  # Ensure no margins around the main layout
+        layout.setContentsMargins(0, 0,0,0)  # Ensure no margins around the main layout
         self.setLayout(layout)
 
     def toggle_connection(self):
