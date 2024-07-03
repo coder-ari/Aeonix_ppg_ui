@@ -138,19 +138,29 @@ class PPGSettingsWidget(QWidget):
         self.setStyleSheet("background-color: black; color: white;")
         layout = QVBoxLayout(self)
 
-        # Define labels and input fields
+        # Define labels and input fields with combobox options
         labels = ["Sampling Rate:", "Brightness:", "Sample Average:", "Led Mode:", "Pulse Width:", "ADC Range:"]
-        self.input_fields = []
+        self.comboboxes = []
+
+        options = {
+            "Sampling Rate:": [50, 100, 200, 400, 800, 1000, 1600, 3200],
+            "Brightness:": list(range(0, 256)),
+            "Sample Average:": [1, 2, 4, 8, 16, 32],
+            "Led Mode:": [1, 2, 3],
+            "Pulse Width:": [69, 118, 215, 411],
+            "ADC Range:": [2048, 4096, 8192, 16384]
+        }
 
         for label_text in labels:
             label = QLabel(label_text)
             label.setStyleSheet("font-size: 16px;")
             layout.addWidget(label)
 
-            line_edit = QLineEdit()
-            line_edit.setStyleSheet("font-size: 16px; border: 1px solid #808080; border-radius: 5px; padding: 5px;")
-            layout.addWidget(line_edit)
-            self.input_fields.append(line_edit)
+            combobox = QComboBox()
+            combobox.addItems(map(str, options[label_text]))
+            combobox.setStyleSheet("font-size: 16px; border: 1px solid #808080; border-radius: 5px; padding: 5px;")
+            layout.addWidget(combobox)
+            self.comboboxes.append(combobox)
 
         # Add buttons for setting values and closing
         set_button = QPushButton("Set Values")
@@ -159,14 +169,14 @@ class PPGSettingsWidget(QWidget):
         layout.addWidget(set_button)
 
     def set_values(self):
-        # Retrieve values from input fields and emit signals
+        # Retrieve values from comboboxes and emit signals
         try:
-            sampling_rate = int(self.input_fields[0].text())
-            brightness = int(self.input_fields[1].text())
-            sample_average = int(self.input_fields[2].text())
-            led_mode = int(self.input_fields[3].text())
-            pulse_width = int(self.input_fields[4].text())
-            adc_range = int(self.input_fields[5].text())
+            sampling_rate = int(self.comboboxes[0].currentText())
+            brightness = int(self.comboboxes[1].currentText())
+            sample_average = int(self.comboboxes[2].currentText())
+            led_mode = int(self.comboboxes[3].currentText())
+            pulse_width = int(self.comboboxes[4].currentText())
+            adc_range = int(self.comboboxes[5].currentText())
 
             self.samplingRateChanged.emit(sampling_rate)
             self.brightnessChanged.emit(brightness)
